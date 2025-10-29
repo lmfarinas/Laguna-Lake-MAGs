@@ -12,6 +12,6 @@ for sample in "${samples[@]}"; do
     motus profile \
         -f "clean_reads/${sample}_1_cleaned.fastq.gz" \
         -r "clean_reads/${sample}_2_cleaned.fastq.gz" \
-        -I "${sample}.bam" \
+        -I "taxo_profile/${sample}.bam" \
         -t 6 
 done
