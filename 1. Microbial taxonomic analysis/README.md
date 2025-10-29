@@ -16,7 +16,7 @@ library(dplyr)
 # Clean the header of the motus output
 {
   # Read file line by line
-  lines <- readLines("profile_phylum.txt")
+  lines <- readLines("taxo_profile/phylum/profile_phylum.txt")
   # Find the header line (starts with "#consensus_taxonomy")
   header_line <- grep("^#consensus_taxonomy", lines, value = TRUE)
   
@@ -24,10 +24,16 @@ library(dplyr)
   header <- gsub("^#", "", header_line)
   
   # Read the actual data, skipping metadata lines
-  motus_abundance <- read_tsv(
-    "profile_phylum.txt",
+  profile_phylum <- read_tsv(
+    "taxo_profile/phylum/profile_phylum.txt",
     comment = "#",
     col_names = strsplit(header, "\t")[[1]]
   )
 }
+
+motus_abundance <- profile_phylum %>%
+  filter(!if_all(AUGLS01:SEPLS16, ~ .x == 0))%>%  # remove 
+  mutate(consensus_taxonomy = if_else(consensus_taxonomy == "Bacteria phylum incertae sedis",
+    "Other Bacteria", consensus_taxonomy))  # rename Bacteria phylum incertae sedis to Other bacteria
+
 ```
