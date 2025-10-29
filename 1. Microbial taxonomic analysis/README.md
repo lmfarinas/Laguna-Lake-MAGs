@@ -4,3 +4,30 @@ Microbial taxonomic profiling was performed using mOTUs v3.1.0, a tool that esti
 ### Script: `motus_profile.sh`
 - loops through the samples' clean reads in the `clean_reads/` folder
 - runs in  ``bwa`` against the mOTUs marker gene database and generates *.bam* files in the `taxo_profile/` folder.
+
+### Create stacked barplot: `taxo_profile.R`
+```r
+# Load necessary library
+library(readr)
+library(tidyr)
+library(dplyr)
+
+# set '#' as indicator of the metadata lines in the motus output
+# Clean the header of the motus output
+{
+  # Read file line by line
+  lines <- readLines("profile_phylum.txt")
+  # Find the header line (starts with "#consensus_taxonomy")
+  header_line <- grep("^#consensus_taxonomy", lines, value = TRUE)
+  
+  # remove leading '#'
+  header <- gsub("^#", "", header_line)
+  
+  # Read the actual data, skipping metadata lines
+  motus_abundance <- read_tsv(
+    "profile_phylum.txt",
+    comment = "#",
+    col_names = strsplit(header, "\t")[[1]]
+  )
+}
+```
