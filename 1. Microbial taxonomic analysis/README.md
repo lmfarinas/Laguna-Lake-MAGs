@@ -4,6 +4,7 @@ Microbial taxonomic profiling was performed using mOTUs v3.1.0, a tool that esti
 ### Script: `motus_profile.sh`
 - loops through the samples' clean reads in the `clean_reads/` folder
 - runs ``bwa`` through ``motus profile`` against the mOTUs marker gene database and generates *.bam* files in the `taxo_profile/` folder.
+- produces relative abundance data at phylum level in .txt format. `taxo_profile/phylum/phylum_profile.txt` contains the merged data for all samples.
 
 ### Create stacked barplot: `taxo_profile.R`
 ```r
