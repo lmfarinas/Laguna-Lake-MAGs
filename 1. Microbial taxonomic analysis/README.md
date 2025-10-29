@@ -31,6 +31,7 @@ library(dplyr)
   )
 }
 
+# Clean the dataframe
 motus_abundance <- profile_phylum %>%
   filter(!if_all(AUGLS01:SEPLS16, ~ .x == 0))%>%  # remove 
   mutate(consensus_taxonomy = if_else(consensus_taxonomy == "Bacteria phylum incertae sedis",
