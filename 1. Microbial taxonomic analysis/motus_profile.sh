@@ -18,3 +18,6 @@ for sample in "${samples[@]}"; do
 	-n "${sample}" \
 	> "taxo_profile/${sample}_profile_phylum.txt"
 done
+
+# merge profiles per sample into a single text file
+motus merge -d taxo_profile -o "taxo_profile/profile_phylum.txt"
