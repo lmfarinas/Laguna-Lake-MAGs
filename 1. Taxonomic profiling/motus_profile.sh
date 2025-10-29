@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of sample names
-samples=(AUGLS01 AUGLS05 AUGLS16) 
+samples=(AUGLS01 AUGLS05 AUGLS16 SEPLS01 SEPLS05 SEPLS16) 
 
 # Make sure the output folder exists
 mkdir -p taxo_profile
