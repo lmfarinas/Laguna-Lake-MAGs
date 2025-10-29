@@ -16,8 +16,8 @@ for sample in "${samples[@]}"; do
         -t 8 \
 	-k phylum \ # set taxonomic level
 	-n "${sample}" \
-	> "taxo_profile/${sample}_profile_phylum.txt"
+	> "taxo_profile/phylum/${sample}_profile_phylum.txt"
 done
 
 # merge profiles per sample into a single text file
-motus merge -d taxo_profile -o "taxo_profile/profile_phylum.txt"
+motus merge -d "taxo_profile/phylum" -o "taxo_profile/phylum/profile_phylum.txt"
