@@ -1,0 +1,148 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k phylum -C no_CAMI -g 3 | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /home/pheirldesktop/miniconda3/envs/metaSNV_env/bin/motus profile -f clean_reads/SEPLS16_1_cleaned.fastq.gz -r clean_reads/SEPLS16_2_cleaned.fastq.gz -I taxo_profile/SEPLS16.bam -t 8 -k phylum -n SEPLS16
+#consensus_taxonomy	SEPLS16
+Chlorobi	0.0000000000
+Cyanobacteria	0.0535651396
+Ignavibacteriae	0.0000000000
+Proteobacteria	0.2795295263
+Firmicutes	0.0000000000
+Nitrospinae	0.0000000000
+Deinococcus-Thermus	0.0000000000
+Kiritimatiellaeota	0.0000000000
+candidate division Zixibacteria	0.0000000000
+Gemmatimonadetes	0.0022240053
+Candidatus Hydrogenedentes	0.0000000000
+Candidatus Berkelbacteria	0.0000000000
+candidate division CPR3	0.0000000000
+Candidatus Peregrinibacteria	0.0000000000
+Candidatus Kapabacteria	0.0000000000
+candidate division WOR-3	0.0000000000
+Candidatus Thorarchaeota	0.0000000000
+Candidatus Fermentibacteria	0.0000000000
+Candidatus Rokubacteria	0.0000000000
+Candidatus Dadabacteria	0.0000000000
+Candidatus Curtissbacteria	0.0000000000
+Candidatus Daviesbacteria	0.0000000000
+Candidatus Levybacteria	0.0000000000
+Candidatus Gottesmanbacteria	0.0000000000
+Candidatus Shapirobacteria	0.0000000000
+Candidatus Woesebacteria	0.0000000000
+Candidatus Roizmanbacteria	0.0000000000
+Candidatus Pacebacteria	0.0000000000
+Candidatus Collierbacteria	0.0000000000
+Candidatus Beckwithbacteria	0.0000000000
+Candidatus Campbellbacteria	0.0000000000
+Candidatus Falkowbacteria	0.0000000000
+Candidatus Nomurabacteria	0.0000000000
+Candidatus Amesbacteria	0.0000000000
+Candidatus Magasanikbacteria	0.0000000000
+Candidatus Uhrbacteria	0.0000000000
+Candidatus Yanofskybacteria	0.0000000000
+Candidatus Kaiserbacteria	0.0000000000
+Candidatus Wolfebacteria	0.0000000000
+Candidatus Adlerbacteria	0.0000000000
+Candidatus Moranbacteria	0.0000000000
+Candidatus Giovannonibacteria	0.0000000000
+Candidatus Jorgensenbacteria	0.0000000000
+Candidatus Kuenenbacteria	0.0000000000
+Candidatus Azambacteria	0.0000000000
+Candidatus Melainabacteria	0.0000000000
+Candidatus Woesearchaeota	0.0000000000
+Candidatus Micrarchaeota	0.0000000000
+Candidatus Doudnabacteria	0.0000000000
+Candidatus Fischerbacteria	0.0000000000
+Candidatus Fraserbacteria	0.0000000000
+Candidatus Glassbacteria	0.0000000000
+Candidatus Lindowbacteria	0.0000000000
+Candidatus Margulisbacteria	0.0000000000
+Candidatus Riflebacteria	0.0000000000
+Candidatus Wallbacteria	0.0000000000
+Candidatus Blackburnbacteria	0.0000000000
+Candidatus Woykebacteria	0.0000000000
+Candidatus Chisholmbacteria	0.0000000000
+Candidatus Colwellbacteria	0.0000000000
+Candidatus Harrisonbacteria	0.0000000000
+Candidatus Kerfeldbacteria	0.0000000000
+Candidatus Komeilibacteria	0.0000000000
+Candidatus Liptonbacteria	0.0000000000
+Candidatus Lloydbacteria	0.0000000000
+Candidatus Nealsonbacteria	0.0000000000
+Candidatus Niyogibacteria	0.0000000000
+Candidatus Portnoybacteria	0.0000000000
+Candidatus Ryanbacteria	0.0000000000
+Candidatus Staskawiczbacteria	0.0000000000
+Candidatus Sungbacteria	0.0000000000
+Candidatus Taylorbacteria	0.0000000000
+Candidatus Vogelbacteria	0.0000000000
+Candidatus Yonathbacteria	0.0000000000
+Candidatus Zambryskibacteria	0.0000000000
+Candidatus Wirthbacteria	0.0000000000
+Candidatus Desantisbacteria	0.0000000000
+Candidatus Kryptonia	0.0000000000
+Candidatus Verstraetearchaeota	0.0000000000
+Nanoarchaeota	0.0000000000
+Calditrichaeota	0.0000000000
+Candidatus Odinarchaeota	0.0000000000
+Candidatus Heimdallarchaeota	0.0000000000
+Balneolaeota	0.0000000000
+Aquificae	0.0000000000
+Chloroflexi	0.0003842898
+Thermotogae	0.0000000000
+Deferribacteres	0.0000000000
+Chrysiogenetes	0.0000000000
+Thermodesulfobacteria	0.0000000000
+Actinobacteria	0.2031525353
+Planctomycetes	0.0061352968
+Spirochaetes	0.0000000000
+Chlamydiae	0.0000000000
+Coprothermobacterota	0.0000000000
+Candidatus Parcubacteria	0.0000000000
+Lentisphaerae	0.0000000000
+Candidatus Poribacteria	0.0000000000
+Crenarchaeota	0.0000000000
+Euryarchaeota	0.0000000000
+Chlorophyta	0.0000000000
+Fusobacteria	0.0000000000
+Candidatus Gracilibacteria	0.0000000000
+Nitrospirae	0.0000000000
+candidate division WWE3	0.0000000000
+Candidatus Cloacimonetes	0.0000000000
+Ascomycota	0.0000000000
+Synergistetes	0.0000000000
+Candidatus Korarchaeota	0.0000000000
+Basidiomycota	0.0000000000
+Tenericutes	0.0000000000
+Acidobacteria	0.0019592805
+Candidatus Marinimicrobia	0.0000000000
+candidate division NC10	0.0000000000
+Thaumarchaeota	0.0000000000
+Fibrobacteres	0.0000000000
+Candidatus Bipolaricaulota	0.0000000000
+Candidatus Omnitrophica	0.0000000000
+Caldiserica	0.0000000000
+Candidatus Aminicenantes	0.0000000000
+Candidatus Atribacteria	0.0000000000
+Armatimonadetes	0.0000000000
+Candidatus Microgenomates	0.0000000000
+Dictyoglomi	0.0000000000
+Candidatus Latescibacteria	0.0000000000
+Elusimicrobia	0.0000000000
+Verrucomicrobia	0.0103888350
+Candidatus Aenigmarchaeota	0.0000000000
+Candidatus Diapherotrites	0.0000000000
+Candidatus Bathyarchaeota	0.0000000000
+Candidatus Saccharibacteria	0.0000000000
+Bacteroidetes	0.0451650914
+Archaea phylum incertae sedis	0.0000000000
+Bacteria phylum [Actinobacteria/Bacteroidetes]	0.0000000000
+Bacteria phylum [Chlamydiae/Bacteroidetes]	0.0000000000
+Bacteria phylum [Chlorobi/Ignavibacteriae]	0.0000000000
+Bacteria phylum [Firmicutes/Actinobacteria]	0.0000000000
+Bacteria phylum [Nitrospirae/Bacteroidetes]	0.0000000000
+Bacteria phylum [Proteobacteria/Actinobacteria]	0.0000000000
+Bacteria phylum [Proteobacteria/Armatimonadetes]	0.0000000000
+Bacteria phylum [Proteobacteria/Chloroflexi]	0.0000000000
+Bacteria phylum [Proteobacteria/Firmicutes]	0.0000000000
+Bacteria phylum incertae sedis	0.0246704102
+Unknown cellular organism phylum incertae sedis	0.0000000000
+unassigned	0.3728255897
