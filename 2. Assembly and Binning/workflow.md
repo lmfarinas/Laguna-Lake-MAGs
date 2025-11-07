@@ -43,15 +43,58 @@ write.table(mags_quality,
             quote = FALSE,
             row.names = FALSE)
 ```
+The script above produces the `mags_quality.csv` file, which will be used by dRep for genome quality information and to skip CheckM.
+
 ## Dereplication via dRep
 `dRep version 3.6.1`
 
 ```bash
-dRep dereplicate drep_out \    # output folder: drep_out
-  -g metawrap_50_10_bins/ALL/*.fasta \    # location of bins
-  --genomeInfo mags_quality.csv \    # contains quality information of mags (completeness, contamination)
-  -p 6    # 6 threads used
+# Run dRep dereplication
+# Output folder: drep_out
+# Genomes from metawrap_50_10_bins/ALL/
+# Genome quality info from mags_quality.csv
+# Completeness ≥ 50%, contamination ≤ 10%
+# Primary clustering ANI = 0.90, secondary = 0.99
+# Using 6 threads
+
+dRep dereplicate drep_output \
+  -g metawrap_50_10_bins/ALL/*.fasta \
+  --genomeInfo mags_quality.csv \
+  -comp 50 -con 10 \
+  -pa 0.90 -sa 0.95 \
+  -p 6
 ```
 ## Taxonomic Classification of MAGs
 gtdbtk via galaxy
+
+**NOTE: rerun gtdbtk now using the dereplicated fasta**
+
+gtdbtk classification files were downloaded into `gtdbtk_summary/` folder:
+
+- [sampleName]_gtdbtk.bac120.summary.tsv
+
+The files were tabulated on R
+```r
+#Load packages:
+library(dplyr)
+library(stringr)
+
+# List all gtdb tsv files in the folder
+gtdb_tsv_files <- list.files(path = "gtdbtk_summary", pattern = "\\.tsv$", full.names = TRUE)
+
+# Import all .tsv files and combine into one data frame
+gtdb_tsv <- lapply(gtdb_tsv_files, function(file) {
+  sample_name <- str_split(basename(file), "_", simplify = TRUE)[1] # Extract sample name (everything before first "_")
+  df <- read.delim(file, stringsAsFactors = FALSE) # Read file
+  colnames(df)[1] <- "bin_number" # Rename 1st column to bin_number
+  
+  # Add sample_name as first column
+  df <- df %>%
+    mutate(sample_name = sample_name,
+           bin_name = paste0(sample_name, "_", bin_number)) %>%
+    select(sample_name, bin_number, bin_name, everything())
+  
+  return(df)
+}) %>% bind_rows()
+```
 
