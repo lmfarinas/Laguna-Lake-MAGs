@@ -88,11 +88,11 @@ profile_assigned <- profile_phylum_clean %>%
 #### Create stacked barplots
 
 ## Plot for assigned vs unassigned
-#Set priority levels (what appears on top)
-profile_wUnassigned$phylum <- factor(profile_wUnassigned$phylum, levels = c("Unassigned", "Assigned"))
 # convert to long format
 profile_wUnassigned_long <- pivot_longer(profile_wUnassigned, cols = -phylum, 
              names_to = "Sample", values_to = "Proportion")
+#Set priority levels (what appears on top)
+profile_wUnassigned_long$phylum <- factor(profile_wUnassigned_long$phylum, levels = c("Unassigned", "Assigned"))
 
 ggplot(profile_wUnassigned_long, aes(x = Sample, y = Proportion, fill = phylum)) +
   geom_bar(stat = "identity") +
@@ -108,15 +108,15 @@ ggplot(profile_wUnassigned_long, aes(x = Sample, y = Proportion, fill = phylum))
         axis.text.x = element_text(angle = 45, hjust = 1))
 
 ## Plot for assigned phyla
-#Set priority levels (what appears on top)
-profile_assigned$phylum <- factor(profile_assigned$phylum,
-                                          levels = rev(c("Actinobacteria", "Proteobacteria", "Cyanobacteria",
-                                                         "Bacteroidetes", "Other Bacteria", "Verrucomicrobia",
-                                                         "Planctomycetes", "Acidobacteria", "Gemmatimonadetes",
-                                                         "Chloroflexi", "Fusobacteria")))
 # convert to long format
 profile_assigned_long <- pivot_longer(profile_assigned, cols = -phylum, 
              names_to = "Sample", values_to = "Proportion")
+#Set priority levels (what appears on top)
+profile_assigned_long$phylum <- factor(profile_assigned_long$phylum,
+                                  levels = rev(c("Actinobacteria", "Proteobacteria", "Cyanobacteria",
+                                                 "Bacteroidetes", "Other Bacteria", "Verrucomicrobia",
+                                                 "Planctomycetes", "Acidobacteria", "Gemmatimonadetes",
+                                                 "Chloroflexi", "Fusobacteria")))
 
 ggplot(profile_assigned_long, aes(x = Sample, y = Proportion, fill = phylum)) +
   geom_bar(stat = "identity") +
@@ -141,4 +141,32 @@ ggplot(profile_assigned_long, aes(x = Sample, y = Proportion, fill = phylum)) +
         panel.background = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
 
+#### Output abundance tables
+# Load necessary packages
+library(xlsx)
+
+# Create a new workbook
+profile_phylum_wb <- createWorkbook()
+
+# Add first sheet
+sheet1 <- createSheet(profile_phylum_wb, sheetName = "Unassigned")
+addDataFrame(as.data.frame(profile_wUnassigned), sheet1, row.names = FALSE, col.names = TRUE)
+
+# Add second sheet
+sheet2 <- createSheet(profile_phylum_wb, sheetName = "Assigned")
+addDataFrame(as.data.frame(profile_assigned), sheet2, row.names = FALSE, col.names = TRUE)
+
+# Save workbook
+saveWorkbook(profile_phylum_wb, "profile_phylum.xlsx")
+
 ```
+This R script produces two figures:
+
+- `taxo_profile/figures/phyla_unassigned.png`
+<img src="taxo_profile/figures/phyla_unassigned.png" width="600px" />
+
+- `taxo_profile/figures/phyla_assigned.png`
+<img src="taxo_profile/figures/phyla_assigned.png" width="600px" />
+
+
+The final block of code is used to output the abundance table: `taxo_profile/tables/profile_phylum.xlsx`.
