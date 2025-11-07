@@ -5,5 +5,6 @@ Pre-processing of raw reads using **Fastp v0.24.0** to trim adapter sequences, r
 see: https://github.com/lmfarinas/laguna-lake-ARG-Analysis/blob/main/ARG-Quantification-Workflow.md
 
 ## 1. Microbial taxonomic analysis
+see:  [mOTUs_workflow.md](1.%20Microbial%20taxonomic%20analysis/mOTUs_workflow.md)
 
 
