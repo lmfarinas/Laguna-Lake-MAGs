@@ -9,6 +9,7 @@ downloaded quality information from galaxy into the `MAGs_stats/` folder:
 
 - [sampleName]_metawrap_50_10_bins.tabular
 
+Using R, quality information of the MAGs (>=50 completeness, <=10 contamination) was combined into a single dataframe.
 ```r
 #Load packages:
 library(dplyr)
