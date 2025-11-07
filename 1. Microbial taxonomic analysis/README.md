@@ -65,3 +65,77 @@ motus_abundance <- profile_phylum %>%
     "Other Bacteria", consensus_taxonomy))  # rename Bacteria phylum incertae sedis to Other bacteria
 
 ```
+
+```r
+##### Plot for Unassigned Taxa ##### 
+# Import CSV file
+TaxoProfile_UA <- as.data.frame(read.csv(
+  '/Users/elmashu/Documents/UP/Thesis/Data Analysis/R Files/Taxonomic Profile/TaxoProfile_phyla_unassigned.csv'))
+
+#convert data to long format
+TaxoProfile_UA_long <- pivot_longer(TaxoProfile_UA, cols = c("Unassigned", "Assigned"), 
+                                 names_to = "Category", values_to = "Proportion")
+
+#Set priority levels (what appears on top)
+TaxoProfile_UA_long$Category <- factor(TaxoProfile_UA_long$Category, levels = c("Unassigned", "Assigned"))
+
+#Convert decimal to percent
+TaxoProfile_UA_long$Proportion <- TaxoProfile_UA_long$Proportion * 100
+
+#Plot
+ggplot(TaxoProfile_UA_long, aes(x = Sample, y = Proportion, fill = Category)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("Assigned" = "#80CBC4", "Unassigned" = "#D3D3D3")) +
+  labs(y = "Relative Abundance (%)", x = NULL) +
+  theme_minimal(base_family = "sans", base_size = 12) +
+  theme(legend.position = "right", 
+        legend.title = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+##### Plot for Assigned Taxa w/ no unassigned ##### 
+# Import CSV file
+TaxoProfile_phyla <- as.data.frame(read.csv(
+  '/Users/elmashu/Documents/UP/Thesis/Data Analysis/R Files/Taxonomic Profile/TaxoProfile_phyla_no_unassigned.csv'))
+
+#convert data to long format
+TaxoProfile_phyla_long <- pivot_longer(TaxoProfile_phyla,
+                                    cols = c("Actinobacteria", "Proteobacteria", "Cyanobacteria", "Bacteroidetes", "Other.Bacteria", "Verrucomicrobia", "Planctomycetes", "Acidobacteria", "Gemmatimonadetes", "Chloroflexi", "Fusobacteria"), 
+                                    names_to = "Category", values_to = "Proportion")
+
+#Convert decimal to percent
+TaxoProfile_phyla_long$Proportion <- TaxoProfile_phyla_long$Proportion * 100
+
+#Set priority levels (what appears on top)
+TaxoProfile_phyla_long$Category <- factor(TaxoProfile_phyla_long$Category,
+                                               levels = rev(c("Actinobacteria", "Proteobacteria", "Cyanobacteria",
+                                                          "Bacteroidetes", "Other.Bacteria", "Verrucomicrobia",
+                                                          "Planctomycetes", "Acidobacteria", "Gemmatimonadetes",
+                                                          "Chloroflexi", "Fusobacteria")))
+
+# Plot
+ggplot(TaxoProfile_phyla_long, aes(x = Sample, y = Proportion, fill = Category)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("Actinobacteria" = "#E69F00",
+                               "Proteobacteria" = "#56B4E9",
+                               "Cyanobacteria" = "#009E73",
+                               "Bacteroidetes" = "#F0E442",
+                               "Other.Bacteria" = "#0072B2",
+                               "Verrucomicrobia" = "#D55E00",
+                               "Planctomycetes" = "#CC79A7",
+                               "Acidobacteria" = "#8B4513",
+                               "Gemmatimonadetes" = "#800080",
+                               "Chloroflexi" = "#CCFF33",
+                               "Fusobacteria" = "#FF6666")) +
+  labs(y = "Relative Abundance (%)", x = NULL, fill = "Phylum") +
+  theme_minimal(base_family = "sans", base_size = 12) +
+  theme(legend.position = "right", 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+```
