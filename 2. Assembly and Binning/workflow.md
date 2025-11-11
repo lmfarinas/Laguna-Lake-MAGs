@@ -1,11 +1,9 @@
 ## Assembly
-De novo assembly of clean short reads using metaSPAdes (Galaxy Version 3.15.5+galaxy2) on Galaxy EU was done individually for each sample (see https://github.com/lmfarinas/laguna-lake-ARG-Analysis/blob/main/ARC-Profiling-Workflow.md). The generated scaffolds were downloaded into the `scaffolds/` folder, with file names:
-
-- [sampleName]_Scaffolds.fasta
+De novo assembly of clean short reads using *metaSPAdes* (Galaxy Version 3.15.5+galaxy2) on Galaxy EU was done individually for each sample i.e. in separate Galaxy histories (please also see https://github.com/lmfarinas/laguna-lake-ARG-Analysis/blob/main/ARC-Profiling-Workflow.md). The generated scaffolds were downloaded into the `scaffolds/` folder, with file names: [sampleName]_Scaffolds.fasta
 
 #### Script: process_scaffolds.sh
 
-Scaffolds were filtered (≥1000 bp). Fasta statistics were computed using **seqkit stats** before and after filtering.
+Scaffolds were filtered (≥1000 bp). Assembly statistics were assessed using **seqkit stats** before and after filtering.
 ```bash
 #!/bin/bash
 
@@ -45,13 +43,20 @@ Output files:
 - `scaffolds/scaffolds_stats.txt` - stats before filtering
 - `scaffolds_min1000/` - contains filtered fasta files: [sampleName]_Scaffolds_min1000.fasta
 - `scaffolds_min1000/scaffolds_min1000_stats.txt` - stats after filtering
+
 ## Binning
+The scaffolds were then binned using *MetaWRAP binning* (Galaxy Version 1.3.0+galaxy2) on Galaxy EU, which combines the binning and bin refinement modules of MetaWRAP (*NOTE: On Galaxy3, I think they separated the two modules already*).
 
-Galaxy - Metawrap
+Binning parameters were set to:
+- Minimum % completion of bins (-c): 50
+- Maximum % contamination of bins that is acceptable (-x): 10
 
-downloaded quality information from galaxy into the `MAGs_stats/` folder:
+This tool combines multiple tools into one pipeline. The binning module combines three binning tools: MaxBin2, metaBAT2, and CONCOCT. After which, it consolidates and refines binning using the refinement module. CheckM is used to evaluate bin completion and contamination, among other statistics.
 
-- [sampleName]_metawrap_50_10_bins.tabular
+For each of the samples, the following files were downloaded from Galaxy:
+
+- Quality information of the final bins (on Galaxy history: MetaWRAP on collection #: stat files -> collection -> metawrap_50_10_bins) saved as `MAGs_stats/[sampleName]_metawrap_50_10_bins.tabular`
+- Final/refined bins (on Galaxy history: MetaWRAP on collection #: bins -> collection) saved as `metawrap_50_10_bins/[sampleName]/`
 
 Using R, quality information of the MAGs (>=50 completeness, <=10 contamination) was combined into a single dataframe.
 ```r
