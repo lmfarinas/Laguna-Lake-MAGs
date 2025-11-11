@@ -254,9 +254,7 @@ SRG_info <- genomeInformation %>%
     by = "genome"
   )
 
-# generate QC plot (Contamination vs Completeness)
-# note: categorize by phyla
-
+### generate Contamination vs Completeness for SRGs
 gtdb_classification <- gtdb_tsv %>%
   select(bin_name, classification) %>%
   mutate(bin_name = paste0(bin_name, ".fasta")) %>%
@@ -266,52 +264,22 @@ SRG_info_joined <- SRG_info %>%
   left_join(gtdb_classification, by = "genome") %>%
   separate(classification, into = c("domain", "phylum", "class", "order", "family", "genus", "species"), sep = ";", convert = FALSE)
 
-
-ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)) +
-  
-  # Light background quality regions
-  annotate("rect", xmin = 50, xmax = 90, ymin = 0, ymax = 10,  # Threshold for medium quality MAGs
-           fill = "orange3", alpha = 0.1) +
-  annotate("rect", xmin = 90, xmax = 100, ymin = 0, ymax = 5,  # Threshold for high quality MAGs
-           fill = "blue3", alpha = 0.1) +
-  
-  # Threshold lines
-  geom_vline(xintercept = c(50, 90), linetype = "dashed", color = "grey35") +
-  geom_hline(yintercept = c(10, 5),   linetype = "dashed", color = "grey35") +
-  
-  # Points
-  geom_point(size = 3, alpha = 0.9) +
-  
-  labs(
-    x = "Completeness (%)",
-    y = "Contamination (%)",
-    color = "Phylum") +
-  scale_x_continuous(limits = c(50, 100)) +
-  theme_minimal() +
-  theme(
-    text = element_text(size = 13),
-    panel.grid.minor = element_blank()
-  ) +
-  scale_color_viridis_d(option = "turbo")
-
-
-
-# Define the quality regions as a small data frame
+# Define the quality regions as a data frame
 quality_regions <- data.frame(
   xmin  = c(50, 90),
   xmax  = c(90, 100),
   ymin  = c(0, 0),
   ymax  = c(10, 5),
-  quality = c("Medium-quality MAGs", "High-quality MAGs")
+  quality = c("Medium-quality SRGs", "High-quality SRGs")
 )
 
 ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)) +
-  
   # Background quality regions (with legend and actual transparency)
   geom_rect(
     data = quality_regions,
     aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = quality),
-    color = NA, alpha = 0.05
+    inherit.aes = FALSE,
+    color = NA, alpha = 0.1
   ) +
   
   # Threshold lines
@@ -332,7 +300,7 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
   # Colors for fills and points
   scale_color_viridis_d(option = "turbo") +
   scale_fill_manual(
-    values = c("Medium-quality MAGs" = "orange3", "High-quality MAGs" = "blue3")
+    values = c("Medium-quality SRGs" = "orange3", "High-quality SRGs" = "blue3")
   ) +
   
   theme_minimal() +
@@ -340,6 +308,5 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
     text = element_text(size = 13),
     panel.grid.minor = element_blank()
   )
-
 ```
 
