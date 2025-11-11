@@ -59,11 +59,15 @@ For each of the samples, the following files were downloaded from Galaxy:
 - Final/refined bins (on Galaxy history: MetaWRAP on collection #: bins -> collection) saved as `metawrap_50_10_bins/[sampleName]/`
 
 Using R, quality information of the MAGs (>=50 completeness, <=10 contamination) was combined into a single dataframe.
+
+#### Script: summarize_bins_quality.R
 ```r
 #Load packages:
 library(dplyr)
 library(stringr)
+library(ggplot2)
 
+#### Summarize bin quality stats
 # List all bin stat files
 mags_stats_files <- list.files(path = "MAGs_stats", pattern = "\\.tabular$", full.names = TRUE)
 
@@ -72,11 +76,13 @@ mags_stats <- lapply(mags_stats_files, function(file) {
   sample_name <- str_split(basename(file), "_", simplify = TRUE)[1] # Extract sample name (everything before first "_")
   df <- read.delim(file, stringsAsFactors = FALSE) # Read file
   colnames(df)[1] <- "bin_number" # Rename 1st column to bin_number
+  
   # Add sample_name as first column
   df <- df %>%
     mutate(sample_name = sample_name,
            bin_name = paste0(sample_name, ".", bin_number)) %>%
     select(sample_name, bin_number, bin_name, everything())
+  
   return(df)
 }) %>% bind_rows()
 
@@ -92,23 +98,26 @@ write.table(mags_quality,
             quote = FALSE,
             row.names = FALSE)
 ```
-The script above produces the `mags_quality.csv` file, which will be used by dRep for genome quality information and to skip CheckM.
+This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information and to skip CheckM.
 
 ## Taxonomic Classification of MAGs
-Classification of the species representative genomes (SRGs) was performed on the Galaxy EU server using the *GTDB-Tk Classify Genomes tool* (Galaxy version 2.4.1+galaxy0), with the *GTDB Full Database release 220* (2024-10-28) and default parameters.
+Classification of the MAGs was performed on the Galaxy EU server using the *GTDB-Tk Classify Genomes tool* (Galaxy version 2.4.1+galaxy0), with the *GTDB Full Database release 220* (2024-10-28) and default parameters.
+This was also done in the separate Galaxy histories per sample, using the bins produced by MetaWRAP.
 
-- [sampleName]_gtdbtk.bac120.summary.tsv
+For each of the samples, the following file was downloaded from Galaxy:
 
-The files were tabulated on R
+- GTDB classification table (on Galaxy history: GTDB-Tk Classify genomes on collection # (summary)) saved as `gtdbtk_summary/[sampleName]_gtdbtk.bac120.summary.tsv`
+
+The files were tabulated on R.
+
+#### Script: summarize_bins_quality.R
 ```r
-#Load packages:
-library(dplyr)
-library(stringr)
-
+#### Summarize gtdb-tk files
 # List all gtdb tsv files in the folder
 gtdb_tsv_files <- list.files(path = "gtdbtk_summary", pattern = "\\.tsv$", full.names = TRUE)
 
 # Import all .tsv files and combine into one data frame
+
 gtdb_tsv <- lapply(gtdb_tsv_files, function(file) {
   sample_name <- str_split(basename(file), "_", simplify = TRUE)[1] # Extract sample name (everything before first "_")
   df <- read.delim(file, stringsAsFactors = FALSE) # Read file
@@ -117,7 +126,7 @@ gtdb_tsv <- lapply(gtdb_tsv_files, function(file) {
   # Add sample_name as first column
   df <- df %>%
     mutate(sample_name = sample_name,
-           bin_name = paste0(sample_name, "_", bin_number)) %>%
+           bin_name = paste0(sample_name, ".", bin_number)) %>%
     select(sample_name, bin_number, bin_name, everything())
   
   return(df)
