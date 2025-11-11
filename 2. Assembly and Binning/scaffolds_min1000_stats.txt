@@ -1,0 +1,7 @@
+sample	file	format	type	num_seqs	sum_len	min_len	avg_len	max_len
+AUGLS01_Scaffolds	scaffolds_min1000/AUGLS01_Scaffolds_min1000.fasta  FASTA   DNA    123,888  303,984,696    1,000  2,453.7  345,280
+AUGLS05_Scaffolds	scaffolds_min1000/AUGLS05_Scaffolds_min1000.fasta  FASTA   DNA    123,602  312,850,594    1,000  2,531.1  439,968
+AUGLS16_Scaffolds	scaffolds_min1000/AUGLS16_Scaffolds_min1000.fasta  FASTA   DNA    120,589  304,177,734    1,000  2,522.4  214,150
+SEPLS01_Scaffolds	scaffolds_min1000/SEPLS01_Scaffolds_min1000.fasta  FASTA   DNA     51,893  106,855,227    1,000  2,059.1  147,193
+SEPLS05_Scaffolds	scaffolds_min1000/SEPLS05_Scaffolds_min1000.fasta  FASTA   DNA    110,916  246,026,967    1,000  2,218.1  191,259
+SEPLS16_Scaffolds	scaffolds_min1000/SEPLS16_Scaffolds_min1000.fasta  FASTA   DNA    115,546  284,418,917    1,000  2,461.5  232,124
