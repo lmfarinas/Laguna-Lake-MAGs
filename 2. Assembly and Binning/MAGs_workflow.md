@@ -296,11 +296,23 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
 
 
 
+# Define the quality regions as a small data frame
+quality_regions <- data.frame(
+  xmin  = c(50, 90),
+  xmax  = c(90, 100),
+  ymin  = c(0, 0),
+  ymax  = c(10, 5),
+  quality = c("Medium-quality MAGs", "High-quality MAGs")
+)
+
 ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)) +
   
-  # Background quality regions with legend
-  geom_rect(aes(xmin = 50, xmax = 90, ymin = 0, ymax = 10, fill = "Medium-quality MAGs"), alpha = 0.1, color = NA) +
-  geom_rect(aes(xmin = 90, xmax = 100, ymin = 0, ymax = 5, fill = "High-quality MAGs"), alpha = 0.1, color = NA) +
+  # Background quality regions (with legend and actual transparency)
+  geom_rect(
+    data = quality_regions,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = quality),
+    color = NA, alpha = 0.05
+  ) +
   
   # Threshold lines
   geom_vline(xintercept = c(50, 90), linetype = "dashed", color = "grey35") +
@@ -317,7 +329,7 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
   ) +
   scale_x_continuous(limits = c(50, 100)) +
   
-  # Color scales
+  # Colors for fills and points
   scale_color_viridis_d(option = "turbo") +
   scale_fill_manual(
     values = c("Medium-quality MAGs" = "orange3", "High-quality MAGs" = "blue3")
@@ -328,5 +340,6 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
     text = element_text(size = 13),
     panel.grid.minor = element_blank()
   )
+
 ```
 
