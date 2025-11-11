@@ -1,6 +1,50 @@
 ## Assembly
-Galaxy - Metaspades
+De novo assembly of clean short reads using metaSPAdes (Galaxy Version 3.15.5+galaxy2) on Galaxy EU was done individually for each sample (see https://github.com/lmfarinas/laguna-lake-ARG-Analysis/blob/main/ARC-Profiling-Workflow.md). The generated scaffolds were downloaded into the `scaffolds/` folder, with file names:
 
+- [sampleName]_Scaffolds.fasta
+
+#### Script: process_scaffolds.sh
+
+Scaffolds were filtered (≥1000 bp). Fasta statistics were computed using **seqkit stats** before and after filtering.
+```bash
+#!/bin/bash
+
+# Set directories
+input_dir="scaffolds"
+output_stats="$input_dir/scaffolds_stats.txt"
+filtered_dir="scaffolds_min1000"
+filtered_stats="$filtered_dir/scaffolds_min1000_stats.txt"
+
+# Create filtered output directory if it does not exist
+mkdir -p "$filtered_dir"
+
+# Initialize output stats files with headers
+echo -e "sample\tfile\tformat\ttype\tnum_seqs\tsum_len\tmin_len\tavg_len\tmax_len" > "$output_stats"
+echo -e "sample\tfile\tformat\ttype\tnum_seqs\tsum_len\tmin_len\tavg_len\tmax_len" > "$filtered_stats"
+
+# Loop through all .fasta files
+for fasta_file in "$input_dir"/*.fasta; do
+    filename=$(basename "$fasta_file")
+    sample="${filename%.*}"
+
+    # Get stats for the original file
+    stats=$(seqkit stats "$fasta_file" | tail -n +2)
+    echo -e "$sample\t$stats" >> "$output_stats"
+
+    # Filter sequences ≥1000 bp
+    filtered_file="$filtered_dir/${sample}_min1000.fasta"
+    seqkit seq -m 1000 "$fasta_file" -o "$filtered_file"
+
+    # Get stats for the filtered file
+    filtered_stats_line=$(seqkit stats "$filtered_file" | tail -n +2)
+    echo -e "$sample\t$filtered_stats_line" >> "$filtered_stats"
+done
+```
+Output files:
+
+- `scaffolds/scaffolds_stats.txt` - stats before filtering
+- `scaffolds_min1000/` - contains filtered fasta files: [sampleName]_Scaffolds_min1000.fasta
+- `scaffolds_min1000/scaffolds_min1000_stats.txt` - stats after filtering
 ## Binning
 
 Galaxy - Metawrap
@@ -45,34 +89,8 @@ write.table(mags_quality,
 ```
 The script above produces the `mags_quality.csv` file, which will be used by dRep for genome quality information and to skip CheckM.
 
-## Dereplication via dRep
-`dRep version 3.6.1`
-
-```bash
-# Run dRep dereplication
-# Output folder: drep_out
-# Genomes from metawrap_50_10_bins/ALL/
-# Genome quality info from mags_quality.csv
-# Completeness ≥ 50%, contamination ≤ 10%
-# Primary clustering ANI = 0.90, secondary = 0.99
-# Using 6 threads
-
-dRep dereplicate drep_output \
-  -g metawrap_50_10_bins/ALL/*.fasta \
-  --genomeInfo mags_quality.csv \
-  -comp 50 -con 10 \
-  -pa 0.90 -sa 0.95 \
-  -p 6
-```
-
-output of drep in `drep_out/` folder.
-
 ## Taxonomic Classification of MAGs
-gtdbtk via galaxy
-
-**NOTE: rerun gtdbtk now using the dereplicated fasta**
-
-gtdbtk classification files were downloaded into `gtdbtk_summary/` folder:
+Classification of the species representative genomes (SRGs) was performed on the Galaxy EU server using the *GTDB-Tk Classify Genomes tool* (Galaxy version 2.4.1+galaxy0), with the *GTDB Full Database release 220* (2024-10-28) and default parameters.
 
 - [sampleName]_gtdbtk.bac120.summary.tsv
 
@@ -100,6 +118,28 @@ gtdb_tsv <- lapply(gtdb_tsv_files, function(file) {
   return(df)
 }) %>% bind_rows()
 ```
+
+## Dereplication via dRep
+`dRep version 3.6.1`
+
+```bash
+# Run dRep dereplication
+# Output folder: drep_out
+# Genomes from metawrap_50_10_bins/ALL/
+# Genome quality info from mags_quality.csv
+# Completeness ≥ 50%, contamination ≤ 10%
+# Primary clustering ANI = 0.90, secondary = 0.99
+# Using 6 threads
+
+dRep dereplicate drep_output \
+  -g metawrap_50_10_bins/ALL/*.fasta \
+  --genomeInfo mags_quality.csv \
+  -comp 50 -con 10 \
+  -pa 0.90 -sa 0.95 \
+  -p 6
+```
+
+output of drep in `drep_out/` folder.
 
 #### Plots
 Classification of MAGs: https://pmc.ncbi.nlm.nih.gov/articles/PMC12114606/#B40-microorganisms-13-00985
