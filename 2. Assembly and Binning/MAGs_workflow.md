@@ -293,5 +293,40 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
     panel.grid.minor = element_blank()
   ) +
   scale_color_viridis_d(option = "turbo")
+
+
+
+ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)) +
+  
+  # Background quality regions with legend
+  geom_rect(aes(xmin = 50, xmax = 90, ymin = 0, ymax = 10, fill = "Medium-quality MAGs"), alpha = 0.1, color = NA) +
+  geom_rect(aes(xmin = 90, xmax = 100, ymin = 0, ymax = 5, fill = "High-quality MAGs"), alpha = 0.1, color = NA) +
+  
+  # Threshold lines
+  geom_vline(xintercept = c(50, 90), linetype = "dashed", color = "grey35") +
+  geom_hline(yintercept = c(10, 5),   linetype = "dashed", color = "grey35") +
+  
+  # Points
+  geom_point(size = 3, alpha = 0.9) +
+  
+  labs(
+    x = "Completeness (%)",
+    y = "Contamination (%)",
+    color = "Phylum",
+    fill  = "Quality thresholds"
+  ) +
+  scale_x_continuous(limits = c(50, 100)) +
+  
+  # Color scales
+  scale_color_viridis_d(option = "turbo") +
+  scale_fill_manual(
+    values = c("Medium-quality MAGs" = "orange3", "High-quality MAGs" = "blue3")
+  ) +
+  
+  theme_minimal() +
+  theme(
+    text = element_text(size = 13),
+    panel.grid.minor = element_blank()
+  )
 ```
 
