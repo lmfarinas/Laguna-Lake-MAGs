@@ -238,7 +238,7 @@ Classification of MAGs: https://pmc.ncbi.nlm.nih.gov/articles/PMC12114606/#B40-m
 - Medium-quality MAGs: >50% completeness, <10% contamination.
 - Low-quality MAGs: <50% completeness, <10% contamination.
 
-````r
+```r
 #Load packages:
 library(dplyr)
 
