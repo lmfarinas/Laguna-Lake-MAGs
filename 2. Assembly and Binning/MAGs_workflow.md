@@ -66,7 +66,9 @@ Using R, quality information of the MAGs (>=50 completeness, <=10 contamination)
 library(dplyr)
 library(stringr)
 library(tidyr)
+library(xlsx)
 library(ggplot2)
+library(viridis)
 
 #### Summarize bin quality stats
 # List all bin stat files
@@ -239,16 +241,7 @@ Classification of MAGs: https://pmc.ncbi.nlm.nih.gov/articles/PMC12114606/#B40-m
 - Low-quality MAGs: <50% completeness, <10% contamination.
 
 ```r
-#Load packages:
-library(dplyr)
-
-# Import pertinent data tables
-genomeInformation <- read.table(file = "drep_out/data_tables/genomeInformation.csv",
-                                sep=",", header=TRUE)
-
-widb <- read.table(file = "drep_out/data_tables/Widb.csv",
-                   sep=",", header=TRUE)
-
+#### Plot
 # get species representative genomes (SRGs) information
 SRG_info <- genomeInformation %>%
   # keep only needed columns from genomeInformation
@@ -261,36 +254,44 @@ SRG_info <- genomeInformation %>%
     by = "genome"
   )
 
-# generate QC plot (Contam vs Comple)
+# generate QC plot (Contamination vs Completeness)
 # note: categorize by phyla
 
-ggplot(SRG_info, aes(x = completeness, y = contamination, color = cluster)) +
-  # Low-quality region (<50% completeness, <10% contamination)
-  geom_rect(aes(xmin = 0, xmax = 50, ymin = 0, ymax = 10),
-            fill = "red4", alpha = 0.12, inherit.aes = FALSE) +
-  # Medium-quality region (50–90% completeness, <10% contamination)
-  geom_rect(aes(xmin = 50, xmax = 90, ymin = 0, ymax = 10),
-            fill = "yellow4", alpha = 0.12, inherit.aes = FALSE) +
-  # High-quality region (>90% completeness, <5% contamination)
-  geom_rect(aes(xmin = 90, xmax = 100, ymin = 0, ymax = 5),
-            fill = "green4", alpha = 0.12, inherit.aes = FALSE) +
+gtdb_classification <- gtdb_tsv %>%
+  select(bin_name, classification) %>%
+  mutate(bin_name = paste0(bin_name, ".fasta")) %>%
+  rename(genome = bin_name)
+
+SRG_info_joined <- SRG_info %>%
+  left_join(gtdb_classification, by = "genome") %>%
+  separate(classification, into = c("domain", "phylum", "class", "order", "family", "genus", "species"), sep = ";", convert = FALSE)
+
+
+ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)) +
+  
+  # Light background quality regions
+  annotate("rect", xmin = 50, xmax = 90, ymin = 0, ymax = 10,  # Threshold for medium quality MAGs
+           fill = "orange3", alpha = 0.1) +
+  annotate("rect", xmin = 90, xmax = 100, ymin = 0, ymax = 5,  # Threshold for high quality MAGs
+           fill = "blue3", alpha = 0.1) +
+  
+  # Threshold lines
+  geom_vline(xintercept = c(50, 90), linetype = "dashed", color = "grey35") +
+  geom_hline(yintercept = c(10, 5),   linetype = "dashed", color = "grey35") +
+  
+  # Points
   geom_point(size = 3, alpha = 0.9) +
-  # Reference threshold lines
-  geom_vline(xintercept = 50, linetype = "dashed", color = "grey40") +
-  geom_vline(xintercept = 90, linetype = "dashed", color = "grey40") +
-  geom_hline(yintercept = 10, linetype = "dashed", color = "grey40") +
-  geom_hline(yintercept = 5, linetype = "dashed", color = "grey40") +
+  
   labs(
     x = "Completeness (%)",
     y = "Contamination (%)",
-    color = "Cluster",
-    title = "Genome QC Plot (CheckM Quality Reference Ranges)"
-  ) +
+    color = "Phylum") +
+  scale_x_continuous(limits = c(50, 100)) +
   theme_minimal() +
   theme(
     text = element_text(size = 13),
     panel.grid.minor = element_blank()
-  )
-
+  ) +
+  scale_color_viridis_d(option = "turbo")
 ```
 
