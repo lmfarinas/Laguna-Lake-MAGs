@@ -60,11 +60,12 @@ For each of the samples, the following files were downloaded from Galaxy:
 
 Using R, quality information of the MAGs (>=50 completeness, <=10 contamination) was combined into a single dataframe.
 
-#### Script: summarize_bins_quality.R
+#### Script: summarize_mags_info.R (part 1)
 ```r
 #Load packages:
 library(dplyr)
 library(stringr)
+library(tidyr)
 library(ggplot2)
 
 #### Summarize bin quality stats
@@ -108,9 +109,9 @@ For each of the samples, the following file was downloaded from Galaxy:
 
 - GTDB classification table (on Galaxy history: GTDB-Tk Classify genomes on collection # (summary)) saved as `gtdbtk_summary/[sampleName]_gtdbtk.bac120.summary.tsv`
 
-The files were tabulated on R.
+The files were tabulated on R:
 
-#### Script: summarize_bins_quality.R
+#### Script: summarize_mags_info.R (part 2)
 ```r
 #### Summarize gtdb-tk files
 # List all gtdb tsv files in the folder
@@ -154,6 +155,81 @@ dRep dereplicate drep_output \
 ```
 
 output of drep in `drep_out/` folder.
+
+## Summarize MAGs info
+All the information on the MAGs generated from CheckM (in MetaWrap), dRep, and GTDB-Tk are organized in a single table.
+
+The N50 values reported by CheckM (via MetaWrap) and dRep differed, although I am not sure why. I chose to report the N50 values calculated internally by dRep, since these were the values used for scoring and dereplication.
+
+#### Script: summarize_mags_info.R (part 3)
+```r
+#### Combine Info
+# Import pertinent data tables from drep_out
+genomeInformation <- read.table(file = "drep_out/data_tables/genomeInformation.csv",
+                                sep=",", header=TRUE)
+widb <- read.table(file = "drep_out/data_tables/Widb.csv",
+                   sep=",", header=TRUE)
+cdb <- read.table(file = "drep_out/data_tables/Cdb.csv",
+                   sep=",", header=TRUE)
+sdb <- read.table(file = "drep_out/data_tables/Sdb.csv",
+                  sep=",", header=TRUE)
+
+# Combine information from metaWrap-checkM (mags_stats),
+# dRep (genomeInformation), dRep (sdb), dRep (cdb), dRep (widb)
+# and gtdb-tk (gtdb_tsv)
+mags_info <- mags_stats %>%
+  select(-lineage, -N50, -size) %>%  # remove info also found from gtdb-tk and drep
+  # Add other MAGs statistics from dRep (genomeInformation)
+  # N50 values from checkm and drep were different. Since drep used its internally calculated N50 for scoring, I chose to report it
+  left_join(
+    genomeInformation %>%
+      mutate(bin_name = sub("\\.fasta$", "", genome)) %>%
+      select(bin_name, length, N50, centrality),
+    by = "bin_name") %>%
+  # Add scoring from dRep (sdb)
+  left_join(
+    sdb %>%
+      mutate(bin_name = sub("\\.fasta$", "", genome)) %>%
+      select(bin_name, score),
+    by = "bin_name") %>%
+  # Add clustering info from dRep (cdb)
+  left_join(
+    cdb %>%
+      mutate(bin_name = sub("\\.fasta$", "", genome)) %>%
+      select(bin_name, secondary_cluster) %>% 
+      rename(cluster = secondary_cluster),
+    by = "bin_name") %>%
+  # Identify SRGs through dRep(widb)
+  mutate(is_SRG = bin_name %in% sub("\\.fasta$", "", widb$genome)) %>%
+  mutate(SRGs = if_else(is_SRG, "★", "")) %>%
+  select(-is_SRG) %>%
+  # Add info from gtdb-tk
+  left_join(
+    gtdb_tsv %>% select(-sample_name, -bin_number, -other_related_references.genome_id.species_name.radius.ANI.AF.),
+    by = "bin_name") %>%
+  # Arrange by cluster and score
+  separate(cluster, into = c("primary", "secondary"), sep = "_", convert = TRUE) %>%
+  arrange(primary, secondary, desc(score)) %>%
+  group_by(primary, secondary) %>%
+  ungroup() %>%
+  unite(cluster, primary, secondary, sep = "_", remove = TRUE)
+```
+#### Script: summarize_mags_info.R (part 4)
+
+Export table `mags_info.xlsx` and save in `tables/` folder.
+```r
+#### create excel table - info on MAGs
+
+# Create a new workbook
+mags_info_wb <- createWorkbook()
+
+# Add first sheet
+sheet1 <- createSheet(mags_info_wb, sheetName = "sheet 1")
+addDataFrame(as.data.frame(mags_info), sheet1, row.names = FALSE, col.names = TRUE)
+
+# Save workbook
+saveWorkbook(mags_info_wb, "mags_info.xlsx")
+```
 
 #### Plots
 Classification of MAGs: https://pmc.ncbi.nlm.nih.gov/articles/PMC12114606/#B40-microorganisms-13-00985
