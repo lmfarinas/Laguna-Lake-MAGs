@@ -98,7 +98,7 @@ write.table(mags_quality,
             quote = FALSE,
             row.names = FALSE)
 ```
-This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information and to skip CheckM.
+This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information (completeness and contamination only) and to skip CheckM.
 
 ## Taxonomic Classification of MAGs
 Classification of the MAGs was performed on the Galaxy EU server using the *GTDB-Tk Classify Genomes tool* (Galaxy version 2.4.1+galaxy0), with the *GTDB Full Database release 220* (2024-10-28) and default parameters.
