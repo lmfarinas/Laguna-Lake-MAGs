@@ -139,17 +139,11 @@ gtdb_tsv <- lapply(gtdb_tsv_files, function(file) {
 ```
 
 ## Dereplication via dRep
-`dRep version 3.6.1`
+All MAGs retrieved from all samples were dereplicated using `dRep v3.6.1`. The mags_quality.csv file was provided to skip the CheckM quality assessment step.
+Quality filtering thresholds were set at *≥50% completeness and ≤10% contamination*, consistent with those used during MAG reconstruction with MetaWrap.
+Primary clustering was performed at 90% average nucleotide identity (ANI), and secondary clustering at 95% ANI, enabling dereplication at the species level. The default dRep scoring method was applied to select the species representative genome (SRG) from each cluster.
 
 ```bash
-# Run dRep dereplication
-# Output folder: drep_out
-# Genomes from metawrap_50_10_bins/ALL/
-# Genome quality info from mags_quality.csv
-# Completeness ≥ 50%, contamination ≤ 10%
-# Primary clustering ANI = 0.90, secondary = 0.99
-# Using 6 threads
-
 dRep dereplicate drep_output \
   -g metawrap_50_10_bins/ALL/*.fasta \
   --genomeInfo mags_quality.csv \
@@ -158,7 +152,7 @@ dRep dereplicate drep_output \
   -p 6
 ```
 
-output of drep in `drep_out/` folder.
+The output of drep is in `drep_out/` folder. I only uploaded the pertinent files that will be used for analysis.
 
 ## Summarize MAGs info
 All the information on the MAGs generated from CheckM (in MetaWrap), dRep, and GTDB-Tk are organized in a single table.
@@ -308,7 +302,11 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
     panel.grid.minor = element_blank()
   )
 ```
+The generated plot, `SRGs_quality_plot.png`, is a shown:
+
 <img src="figures/SRGs_quality_plot.png" width="600px" />
+
+Then, to visualize the quality based on completeness and contamination of the MAGs and the SRGs, overimposed plots for completeness and contamination were made.
 
 #### Script: summarize_mags_info.R (part 6)
 ```r
@@ -349,11 +347,18 @@ ggplot(SRGs_MAGs_combined, aes(x = contamination, fill = dataset)) +
     panel.grid.minor = element_blank()
   )
 ```
-<img src="figures/completeness_MAGs.png" width="600px" /> <img src="figures/contamination_MAGs.png" width="600px" />
+
+- `completeness_MAGs.png`
+<img src="figures/completeness_MAGs.png" width="600px" />
+
+- `contamination_MAGs.png`
+<img src="figures/contamination_MAGs.png" width="600px" />
+
+Finally, to illustrate the number of MAGs originating from each sample and the SRGs shared among samples, an UpSet plot was generated. An SRG was considered shared between samples A and B if it belonged to a cluster containing MAGs derived from both samples.
 
 #### Script: summarize_mags_info.R (part 7)
 ```r
-## upset plot for Shared MAGs
+## upset plot for Shared SRGs
 # make wide boolean matrix (samples = columns, clusters = rows)
 cluster_matrix <- mags_info %>%
   select(sample_name, cluster) %>%
@@ -374,7 +379,7 @@ UpSetR::upset(
   line.size = 1.2,
   text.scale = 1.3,
   mainbar.y.label = "Number of shared MAGs",  # top bars
-  sets.x.label = "MAGs per Sample",       # left bars
+  sets.x.label = "Shared SRGs",       # left bars
 )
 ```
 <img src="figures/upset_MAGs.png" width="600px" />
