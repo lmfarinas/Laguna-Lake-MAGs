@@ -223,7 +223,7 @@ ggplot(SRGs_MAGs_combined, aes(x = contamination, fill = dataset)) +
     panel.grid.minor = element_blank()
   )
 
-## upset plot for Shared MAGs
+## upset plot for Shared SRGs
 # make wide boolean matrix (samples = columns, clusters = rows)
 cluster_matrix <- mags_info %>%
   select(sample_name, cluster) %>%
@@ -244,5 +244,6 @@ UpSetR::upset(
   line.size = 1.2,
   text.scale = 1.3,
   mainbar.y.label = "Number of shared MAGs",  # top bars
-  sets.x.label = "MAGs per Sample",       # left bars
+  sets.x.label = "Shared SRGs",       # left bars
 )
+
