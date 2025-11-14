@@ -127,21 +127,24 @@ echo -e "sample\tfile\tformat\ttype\tnum_seqs\tsum_len\tmin_len\tavg_len\tmax_le
 
 # Loop through all .fasta files
 for fa in "$bins_dir"/*.fasta; do
-    [ -e "$fa" ] || continue  # skip if no .fasta files
+    [ -e "$fa" ] || continue
 
     fname=$(basename "$fa")
 
-    # Extract sample name (before first dot)
+    # Extract sample name before first dot
     sample="${fname%%.*}"
 
-    # Run seqkit stats, skip header, append to output
+    # Run seqkit stats, skip header, modify file field to basename
     seqkit stats -T -a "$fa" | tail -n +2 | \
     while IFS=$'\t' read -r file format type num_seqs sum_len min_len avg_len max_len Q1 Q2 Q3 sum_gap N50 N50_num Q20 Q30 AvgQual GC sum_n; do
-        echo -e "${sample}\t${file}\t${format}\t${type}\t${num_seqs}\t${sum_len}\t${min_len}\t${avg_len}\t${max_len}\t${Q1}\t${Q2}\t${Q3}\t${sum_gap}\t${N50}\t${N50_num}\t${Q20}\t${Q30}\t${AvgQual}\t${GC}\t${sum_n}" \
+        file_only=$(basename "$file")
+
+        echo -e "${sample}\t${file_only}\t${format}\t${type}\t${num_seqs}\t${sum_len}\t${min_len}\t${avg_len}\t${max_len}\t${Q1}\t${Q2}\t${Q3}\t${sum_gap}\t${N50}\t${N50_num}\t${Q20}\t${Q30}\t${AvgQual}\t${GC}\t${sum_n}" \
         >> "$bins_seqkit_stats"
     done
 done
 ```
+The tab-delimited table is in `metawrap_50_10_bins/bins_seqkit_stats.txt`.
 
 ## Taxonomic Classification of MAGs
 Classification of the MAGs was performed on the Galaxy EU server using the *GTDB-Tk Classify Genomes tool* (Galaxy version 2.4.1+galaxy0), with the *GTDB Full Database release 220* (2024-10-28) and default parameters.
