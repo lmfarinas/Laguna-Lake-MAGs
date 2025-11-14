@@ -115,7 +115,40 @@ write.table(mags_quality,
 ```
 This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information (completeness and contamination only) and to skip CheckM.
 
-Moreover, bin statistics were checked using `SeqKit v.2.10.0`. A temporary folder, `ALL_Samples/`, containing all the bin fasta files was created to simplify the bash script. Bin statistics were summarized into a .txt file as follows:
+### MAG quality and statistics
+
+To assess the quality of the MAGs according to MIMAG ([Bowers et al., 2017](https://www.nature.com/articles/nbt.3893)), putative high-quality MAGs (>90% Completeness, <5 Contamination) were assessed using `Bakta v1.11.4` with the *light database v6.0* to check for the presence of rRNAs and tRNAs:
+
+```bash
+mag_list="putative_highQ_mags.txt"
+db_dir="/home/pheirldesktop/db-light"
+threads=6
+mag_dir="metawrap_50_10_bins/ALL_Samples"
+out_dir="bakta_out"
+
+mkdir -p "$out_dir"
+
+# Loop through MAGs listed in mag_list
+while read -r mag_file; do
+    # Skip empty lines
+    [[ -z "$mag_file" ]] && continue
+
+    mag_path="${mag_dir}/${mag_file}"
+
+    # Output folder = filename without .fasta
+    mag_name="${mag_file%.fasta}"
+
+    echo "Running Bakta on $mag_file ..."
+
+    bakta --db "$db_dir" \
+          --threads "$threads" \
+          --output "$out_dir/$mag_name" \
+          "$mag_path"
+
+done < "$mag_list"
+```
+
+Moreover, MAG statistics were checked using `SeqKit v.2.10.0`. A temporary folder, `ALL_Samples/`, containing all the bin fasta files was created to simplify the bash script. Bin statistics were summarized into a .txt file as follows:
 
 ```bash
 bins_dir="metawrap_50_10_bins/ALL_Samples"
