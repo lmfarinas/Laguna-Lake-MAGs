@@ -115,7 +115,7 @@ write.table(mags_quality,
 ```
 This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information (completeness and contamination only) and to skip CheckM.
 
-Moreover, bin statistics were checked using `SeqKit v.2.10.0` and summarized into a .txt file as follows:
+Moreover, bin statistics were checked using `SeqKit v.2.10.0`. A temporary folder, `ALL_Samples/`, containing all the bin fasta files was created to simplify the bash script. Bin statistics were summarized into a .txt file as follows:
 
 ```bash
 bins_dir="metawrap_50_10_bins/ALL_Samples"
