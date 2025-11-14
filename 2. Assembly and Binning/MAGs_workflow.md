@@ -203,6 +203,9 @@ The N50 values reported by CheckM (via MetaWrap) and dRep differed, although I a
 #### Script: summarize_mags_info.R (part 3)
 ```r
 #### Combine Info
+# Import information from seqkit stats output
+seqkit_bin_stats <- read.table(file="metawrap_50_10_bins/bins_seqkit_stats.txt", header = TRUE, sep = "\t")
+
 # Import pertinent data tables from drep_out
 genomeInformation <- read.table(file = "drep_out/data_tables/genomeInformation.csv",
                                 sep=",", header=TRUE)
@@ -213,17 +216,29 @@ cdb <- read.table(file = "drep_out/data_tables/Cdb.csv",
 sdb <- read.table(file = "drep_out/data_tables/Sdb.csv",
                   sep=",", header=TRUE)
 
-# Combine information from metaWrap-checkM (mags_stats),
+# Combine information from metaWrap-checkM (mags_stats), seqkit (seqkit_bin_stats)
 # dRep (genomeInformation), dRep (sdb), dRep (cdb), dRep (widb)
 # and gtdb-tk (gtdb_tsv)
 mags_info <- mags_stats %>%
   select(-lineage, -N50, -size) %>%  # remove info also found from gtdb-tk and drep
+  rename(MetaWRAP_binner = binner) %>%
+  # N50 values from checkm were different from seqkit and drep. Since drep used its internally calculated N50 for scoring, I chose to report it.
+  # Moreover, drep's N50 is similar with seqkit, which calculates N50 including the N's of the scaffolds.
+  # Add statistics from seqkit
+  left_join(
+    seqkit_bin_stats %>%
+      mutate(bin_name = sub("\\.fasta$", "", file)) %>%
+      rename(num_scaffolds = num_seqs, total_length = sum_len, min_length = min_len,
+             avg_length = avg_len, max_length = max_len, scaffold_N50 = N50,
+             scaffold_L50 = N50_num, total_N = sum_n) %>%
+      select(bin_name, num_scaffolds, total_length, min_length, avg_length, max_length,
+             scaffold_N50, scaffold_L50, total_N),
+    by = "bin_name") %>%
   # Add other MAGs statistics from dRep (genomeInformation)
-  # N50 values from checkm and drep were different. Since drep used its internally calculated N50 for scoring, I chose to report it
   left_join(
     genomeInformation %>%
       mutate(bin_name = sub("\\.fasta$", "", genome)) %>%
-      select(bin_name, length, N50, centrality),
+      select(bin_name, centrality),
     by = "bin_name") %>%
   # Add scoring from dRep (sdb)
   left_join(
@@ -242,9 +257,9 @@ mags_info <- mags_stats %>%
   mutate(is_SRG = bin_name %in% sub("\\.fasta$", "", widb$genome)) %>%
   mutate(SRGs = if_else(is_SRG, "★", "")) %>%
   select(-is_SRG) %>%
-  # Add info from gtdb-tk
+  # Add classification from gtdb-tk
   left_join(
-    gtdb_tsv %>% select(-sample_name, -bin_number, -other_related_references.genome_id.species_name.radius.ANI.AF.),
+    gtdb_tsv %>% select(bin_name, classification),
     by = "bin_name") %>%
   # Arrange by cluster and score
   separate(cluster, into = c("primary", "secondary"), sep = "_", convert = TRUE) %>%
