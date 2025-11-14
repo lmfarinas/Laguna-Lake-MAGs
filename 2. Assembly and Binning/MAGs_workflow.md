@@ -58,6 +58,16 @@ For each of the samples, the following files were downloaded from Galaxy:
 - Quality information of the final bins (on Galaxy history: MetaWRAP on collection #: stat files -> collection -> metawrap_50_10_bins) saved as `MAGs_stats/[sampleName]_metawrap_50_10_bins.tabular`
 - Final/refined bins (on Galaxy history: MetaWRAP on collection #: bins -> collection) saved as `metawrap_50_10_bins/[sampleName]/`
 
+Downloaded bins were renamed, appending the sample name before the bin name.
+```bash
+for sample_dir in metawrap_50_10_bins/*/; do 
+    sample="$(basename "$sample_dir")" 
+    for fasta_file in "$sample_dir"*; do 
+        mv "$fasta_file" "$sample_dir${sample}.$(basename "$fasta_file")" 
+    done
+done
+```
+
 Using R, quality information of the MAGs (>=50 completeness, <=10 contamination) was combined into a single dataframe.
 
 #### Script: summarize_mags_info.R (part 1)
