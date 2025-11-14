@@ -164,6 +164,16 @@ To check the presence of rRNAs and tRNAs from the .json output of bakta, the fol
 import json
 import sys
 import os
+import re
+
+def load_json_fixing_trailing_commas(path):
+    with open(path, "r") as f:
+        txt = f.read()
+
+    # Remove trailing commas before } or ]
+    txt = re.sub(r",\s*([}\]])", r"\1", txt)
+
+    return json.loads(txt)
 
 # Print header
 print("bin_name\t5S_rRNA\t16S_rRNA\t23S_rRNA\tnum_tRNA\tmissing_tRNAs")
@@ -176,10 +186,9 @@ aa_list = {
 }
 
 for json_file in sys.argv[1:]:
-    with open(json_file) as f:
-        data = json.load(f)
+    data = load_json_fixing_trailing_commas(json_file)
 
-    # Extract bin name (file name without extension)
+    # Extract bin name
     bin_name = os.path.basename(json_file).replace(".json", "")
 
     rrnas = {"5S": "No", "16S": "No", "23S": "No"}
@@ -204,11 +213,11 @@ for json_file in sys.argv[1:]:
     missing = sorted(aa_list - trnas)
     missing_str = ",".join(missing) if missing else "None"
 
-    # Print tab-separated summary
     print(
         f"{bin_name}\t{rrnas['5S']}\t{rrnas['16S']}\t{rrnas['23S']}\t"
         f"{num_trna}\t{missing_str}"
     )
+
 ```
 
 Moreover, MAG statistics were checked using `SeqKit v.2.10.0`. A temporary folder, `ALL_Samples/`, containing all the bin fasta files was created to simplify the bash script. Bin statistics were summarized into a .txt file as follows:
