@@ -115,6 +115,34 @@ write.table(mags_quality,
 ```
 This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information (completeness and contamination only) and to skip CheckM.
 
+Moreover, bin statistics were checked using `SeqKit v.2.10.0` and summarized into a .txt file as follows:
+
+```bash
+bins_dir="metawrap_50_10_bins/ALL_Samples"
+bins_seqkit_stats="metawrap_50_10_bins/bins_seqkit_stats.txt"
+
+# Write header
+echo -e "sample\tfile\tformat\ttype\tnum_seqs\tsum_len\tmin_len\tavg_len\tmax_len\tQ1\tQ2\tQ3\tsum_gap\tN50\tN50_num\tQ20(%)\tQ30(%)\tAvgQual\tGC(%)\tsum_n" \
+> "$bins_seqkit_stats"
+
+# Loop through all .fasta files
+for fa in "$bins_dir"/*.fasta; do
+    [ -e "$fa" ] || continue  # skip if no .fasta files
+
+    fname=$(basename "$fa")
+
+    # Extract sample name (before first dot)
+    sample="${fname%%.*}"
+
+    # Run seqkit stats, skip header, append to output
+    seqkit stats -T -a "$fa" | tail -n +2 | \
+    while IFS=$'\t' read -r file format type num_seqs sum_len min_len avg_len max_len Q1 Q2 Q3 sum_gap N50 N50_num Q20 Q30 AvgQual GC sum_n; do
+        echo -e "${sample}\t${file}\t${format}\t${type}\t${num_seqs}\t${sum_len}\t${min_len}\t${avg_len}\t${max_len}\t${Q1}\t${Q2}\t${Q3}\t${sum_gap}\t${N50}\t${N50_num}\t${Q20}\t${Q30}\t${AvgQual}\t${GC}\t${sum_n}" \
+        >> "$bins_seqkit_stats"
+    done
+done
+```
+
 ## Taxonomic Classification of MAGs
 Classification of the MAGs was performed on the Galaxy EU server using the *GTDB-Tk Classify Genomes tool* (Galaxy version 2.4.1+galaxy0), with the *GTDB Full Database release 220* (2024-10-28) and default parameters.
 This was also done in the separate Galaxy histories per sample, using the bins produced by MetaWRAP.
