@@ -112,14 +112,25 @@ write.table(mags_quality,
             sep = ",",
             quote = FALSE,
             row.names = FALSE)
+
+# Export putative high quality MAGs for bakta (predict rRNAs and tRNAs)
+putative_highQ_mags <- mags_stats %>%
+  filter(completeness > 90, contamination < 5) %>%
+  mutate(bin_name = paste0(bin_name, ".fasta")) %>%
+  pull(bin_name)
+
+writeLines(putative_highQ_mags, "putative_highQ_mags.txt")
 ```
-This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information (completeness and contamination only) and to skip CheckM.
+This portion of the script produces the `mags_quality.csv` file, which will be used by dRep for genome quality information (completeness and contamination only) and to skip CheckM. It also produces `putative_highQ_mags.txt` to be used for batch processing mags with bakta.
 
 ### MAG quality and statistics
 
 To assess the quality of the MAGs according to MIMAG ([Bowers et al., 2017](https://www.nature.com/articles/nbt.3893)), putative high-quality MAGs (>90% Completeness, <5 Contamination) were assessed using `Bakta v1.11.4` with the *light database v6.0* to check for the presence of rRNAs and tRNAs:
 
 ```bash
+# Convert the file to clean Unix format
+dos2unix putative_highQ_mags.txt
+
 mag_list="putative_highQ_mags.txt"
 db_dir="/home/pheirldesktop/db-light"
 threads=6
