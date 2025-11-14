@@ -159,6 +159,58 @@ while read -r mag_file; do
 done < "$mag_list"
 ```
 
+To check the presence of rRNAs and tRNAs from the .json output of bakta, the following script was used:
+```py
+import json
+import sys
+import os
+
+# Print header
+print("bin_name\t5S_rRNA\t16S_rRNA\t23S_rRNA\tnum_tRNA\tmissing_tRNAs")
+
+aa_list = {
+    "Ala","Arg","Asn","Asp","Cys",
+    "Gln","Glu","Gly","His","Ile",
+    "Leu","Lys","Met","Phe","Pro",
+    "Ser","Thr","Trp","Tyr","Val"
+}
+
+for json_file in sys.argv[1:]:
+    with open(json_file) as f:
+        data = json.load(f)
+
+    # Extract bin name (file name without extension)
+    bin_name = os.path.basename(json_file).replace(".json", "")
+
+    rrnas = {"5S": "No", "16S": "No", "23S": "No"}
+    trnas = set()
+
+    for feature in data.get("features", []):
+        if feature.get("type") == "rrna":
+            product = feature.get("product", "").lower()
+            if "5s" in product:
+                rrnas["5S"] = "Yes"
+            elif "16s" in product:
+                rrnas["16S"] = "Yes"
+            elif "23s" in product:
+                rrnas["23S"] = "Yes"
+
+        elif feature.get("type") == "trna":
+            product = feature.get("product", "")
+            aa = product.replace("tRNA-", "").strip()
+            trnas.add(aa)
+
+    num_trna = len(trnas)
+    missing = sorted(aa_list - trnas)
+    missing_str = ",".join(missing) if missing else "None"
+
+    # Print tab-separated summary
+    print(
+        f"{bin_name}\t{rrnas['5S']}\t{rrnas['16S']}\t{rrnas['23S']}\t"
+        f"{num_trna}\t{missing_str}"
+    )
+```
+
 Moreover, MAG statistics were checked using `SeqKit v.2.10.0`. A temporary folder, `ALL_Samples/`, containing all the bin fasta files was created to simplify the bash script. Bin statistics were summarized into a .txt file as follows:
 
 ```bash
