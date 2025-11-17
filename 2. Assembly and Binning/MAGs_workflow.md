@@ -611,4 +611,4 @@ quality_counts_gt <- quality_counts %>%
   cols_label(MIMAG_qual = "") 
 quality_counts_gt
 ```
-<img src="figures/quality_counts.png" width="600px" />
+<img src="figures/quality_counts.png" width="200px" />
