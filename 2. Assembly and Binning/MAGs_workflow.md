@@ -81,6 +81,8 @@ library(xlsx)
 library(ggplot2)
 library(viridis)
 library(UpSetR)
+library(jsonlite)
+library(gt)
 
 #### Summarize bin quality stats
 # List all bin stat files
@@ -125,7 +127,7 @@ This portion of the script produces the `mags_quality.csv` file, which will be u
 
 ### MAG quality and statistics
 
-To assess the quality of the MAGs according to MIMAG ([Bowers et al., 2017](https://www.nature.com/articles/nbt.3893)), putative high-quality MAGs (>90% Completeness, <5 Contamination) were assessed using `Bakta v1.11.4` with the *light database v6.0* to check for the presence of rRNAs and tRNAs:
+To assess the quality of the MAGs according to MIMAG ([Bowers et al., 2017](https://www.nature.com/articles/nbt.3893)), putative high-quality MAGs (>90% Completeness, <5 Contamination) were assessed using `Bakta v1.11.4` with the *light database v6.0* to check for the presence of rRNAs and tRNAs.
 
 ```bash
 # Convert the file to clean Unix format
@@ -180,66 +182,62 @@ while read -r mag_file; do
 
 done < "$mag_list"
 ```
+The json files from Bakta can be found in `bakta_out/json_output/`.
 
-To check the presence of rRNAs and tRNAs from the .json output of bakta, the following script was used:
-```py
-import json
-import sys
-import os
-import re
+To check the presence of rRNAs and tRNAs from the .json outputs of Bakta, the following lines of code on R were used:
 
-def load_json_fixing_trailing_commas(path):
-    with open(path, "r") as f:
-        txt = f.read()
+#### Script: summarize_mags_info.R (part 2)
+```r
+#### Get info from bakta json files (run after getting json files from bakta)
+# Folder containing Bakta JSON files
+json_dir <- "bakta_out/json_output"
 
-    # Remove trailing commas before } or ]
-    txt = re.sub(r",\s*([}\]])", r"\1", txt)
+# 20 tRNAs
+standard_AA <- c(
+  "Ala", "Arg", "Asn", "Asp", "Cys",
+  "Gln", "Glu", "Gly", "His", "Ile",
+  "Leu", "Lys", "Met", "Phe", "Pro",
+  "Ser", "Thr", "Trp", "Tyr", "Val"
+)
 
-    return json.loads(txt)
-
-# Print header
-print("bin_name\t5S_rRNA\t16S_rRNA\t23S_rRNA\tnum_tRNA\tmissing_tRNAs")
-
-aa_list = {
-    "Ala","Arg","Asn","Asp","Cys",
-    "Gln","Glu","Gly","His","Ile",
-    "Leu","Lys","Met","Phe","Pro",
-    "Ser","Thr","Trp","Tyr","Val"
+# Function to parse one Bakta JSON
+parse_bakta <- function(json_file) {
+  j <- fromJSON(json_file)
+  
+  # rRNA detection
+  rrna_products <-as_tibble(j$features) %>%
+    filter(type == "rRNA") %>%
+    pull(product) %>%
+    na.omit() %>%
+    unique()
+  
+  has_5s  <- ifelse(any(str_detect(rrna_products, "5S ribosomal RNA")),"Yes", "No")
+  has_16s <- ifelse(any(str_detect(rrna_products, "16S ribosomal RNA")),"Yes", "No")
+  has_23s <- ifelse(any(str_detect(rrna_products, "23S ribosomal RNA")),"Yes", "No")
+  
+  # tRNA detection
+  trna_AA <-as_tibble(j$features) %>%
+    filter(type == "tRNA") %>%
+    pull(amino_acid) %>%
+    na.omit() %>%
+    unique()
+  
+  # Validate against 20 standard tRNAs
+  missing <- setdiff(standard_AA, trna_AA)
+  
+  # Create table
+  tibble(
+    bin_name = tools::file_path_sans_ext(basename(json_file)),
+    rRNA_5S  = has_5s,
+    rRNA_16S = has_16s,
+    rRNA_23S = has_23s,
+    num_unique_tRNAs = 20-length(missing),
+    missing_tRNAs = paste(missing, collapse = ", ")
+  )
 }
-
-for json_file in sys.argv[1:]:
-    data = load_json_fixing_trailing_commas(json_file)
-
-    # Extract bin name
-    bin_name = os.path.basename(json_file).replace(".json", "")
-
-    rrnas = {"5S": "No", "16S": "No", "23S": "No"}
-    trnas = set()
-
-    for feature in data.get("features", []):
-        if feature.get("type") == "rrna":
-            product = feature.get("product", "").lower()
-            if "5s" in product:
-                rrnas["5S"] = "Yes"
-            elif "16s" in product:
-                rrnas["16S"] = "Yes"
-            elif "23s" in product:
-                rrnas["23S"] = "Yes"
-
-        elif feature.get("type") == "trna":
-            product = feature.get("product", "")
-            aa = product.replace("tRNA-", "").strip()
-            trnas.add(aa)
-
-    num_trna = len(trnas)
-    missing = sorted(aa_list - trnas)
-    missing_str = ",".join(missing) if missing else "None"
-
-    print(
-        f"{bin_name}\t{rrnas['5S']}\t{rrnas['16S']}\t{rrnas['23S']}\t"
-        f"{num_trna}\t{missing_str}"
-    )
-
+# Apply to all JSON files
+json_files <- list.files(json_dir, pattern = "\\.json$", full.names = TRUE)
+trna_rrna_info <- map_dfr(json_files, parse_bakta)
 ```
 
 Moreover, MAG statistics were checked using `SeqKit v.2.10.0`. A temporary folder, `ALL_Samples/`, containing all the bin fasta files was created to simplify the bash script. Bin statistics were summarized into a .txt file as follows:
@@ -283,7 +281,7 @@ For each of the samples, the following file was downloaded from Galaxy:
 
 The files were tabulated on R:
 
-#### Script: summarize_mags_info.R (part 2)
+#### Script: summarize_mags_info.R (part 3)
 ```r
 #### Summarize gtdb-tk files
 # List all gtdb tsv files in the folder
@@ -325,9 +323,9 @@ The output of drep is in `drep_out/` folder. I only uploaded the pertinent files
 ## Summarize MAGs info
 All the information on the MAGs generated from CheckM (in MetaWrap), dRep, and GTDB-Tk are organized in a single table.
 
-The N50 values reported by CheckM (via MetaWrap) and dRep differed, although I am not sure why. I chose to report the N50 values calculated internally by dRep, since these were the values used for scoring and dereplication.
+The N50 values reported by CheckM (via MetaWrap) and dRep differed, although I am not sure why. I chose to report the N50 values calculated internally by dRep, since these were the values used for scoring and dereplication. moreover, 
 
-#### Script: summarize_mags_info.R (part 3)
+#### Script: summarize_mags_info.R (part 4)
 ```r
 #### Combine Info
 # Import information from seqkit stats output
@@ -351,6 +349,18 @@ mags_info <- mags_stats %>%
   rename(MetaWRAP_binner = binner) %>%
   # N50 values from checkm were different from seqkit and drep. Since drep used its internally calculated N50 for scoring, I chose to report it.
   # Moreover, drep's N50 is similar with seqkit, which calculates N50 including the N's of the scaffolds.
+  # Add info on rrnas and trnas from bakta
+  left_join(trna_rrna_info, by = "bin_name") %>%
+  # Add MIMAG Quality Classification
+  mutate(
+    MIMAG_qual = case_when(
+      completeness > 90 & contamination < 5 &
+        rRNA_5S == "Yes"  & rRNA_16S == "Yes" & rRNA_23S == "Yes" &
+        num_unique_tRNAs >= 18 ~ "High",
+      completeness > 90 & contamination < 5 ~ "nHigh",
+      completeness >= 50 & contamination < 10 ~ "Medium",
+      TRUE ~ ""
+    )) %>%
   # Add statistics from seqkit
   left_join(
     seqkit_bin_stats %>%
@@ -395,7 +405,7 @@ mags_info <- mags_stats %>%
   ungroup() %>%
   unite(cluster, primary, secondary, sep = "_", remove = TRUE)
 ```
-#### Script: summarize_mags_info.R (part 4)
+#### Script: summarize_mags_info.R (part 5)
 
 Export table `mags_info.xlsx` and save in `tables/` folder.
 ```r
@@ -420,7 +430,7 @@ First, the SRGs were visualized on a % Contamination vs % Completeness plot. The
 - Medium-quality MAGs: >50% completeness, <10% contamination.
 - Low-quality MAGs: <50% completeness, <10% contamination.
 
-#### Script: summarize_mags_info.R (part 5)
+#### Script: summarize_mags_info.R (part 6)
 ```r
 #### Plot
 # get species representative genomes (SRGs) information
@@ -491,7 +501,7 @@ The generated plot, `SRGs_quality_plot.png`, is a shown:
 
 Then, to visualize the quality based on completeness and contamination of the MAGs and the SRGs, overimposed plots for completeness and contamination were made.
 
-#### Script: summarize_mags_info.R (part 6)
+#### Script: summarize_mags_info.R (part 7)
 ```r
 ## generate Completeness and Contamination plot for MAGs and SRGs
 # combine info for All MAGs and SRGs
@@ -537,9 +547,9 @@ ggplot(SRGs_MAGs_combined, aes(x = contamination, fill = dataset)) +
 - `contamination_MAGs.png`
 <img src="figures/contamination_MAGs.png" width="600px" />
 
-Finally, to illustrate the number of MAGs originating from each sample and the SRGs shared among samples, an UpSet plot was generated. An SRG was considered shared between samples A and B if it belonged to a cluster containing MAGs derived from both samples.
+To illustrate the number of MAGs originating from each sample and the SRGs shared among samples, an UpSet plot was generated. An SRG was considered shared between samples A and B if it belonged to a cluster containing MAGs derived from both samples.
 
-#### Script: summarize_mags_info.R (part 7)
+#### Script: summarize_mags_info.R (part 8)
 ```r
 ## upset plot for Shared SRGs
 # make wide boolean matrix (samples = columns, clusters = rows)
@@ -566,3 +576,39 @@ UpSetR::upset(
 )
 ```
 <img src="figures/upset_MAGs.png" width="600px" />
+
+Finally, a gt table was created to summarize counts per quality of MAGs and SRGs.
+
+#### Script: summarize_mags_info.R (part 9)
+```r
+## Create GT table for MAG counts per quality
+quality_counts <- mags_info %>%
+  # count ALL MAGs per quality
+  count(MIMAG_qual, name = "MAGs") %>%
+  # join SRG counts
+  left_join(
+    mags_info %>%
+      filter(SRGs == "★") %>%
+      count(MIMAG_qual, name = "SRGs"),
+    by = "MIMAG_qual"
+  ) %>%
+  # replace NA with 0 for SRGs
+  mutate(SRGs = replace_na(SRGs, 0)) %>%
+  # reorder factor levels
+  mutate(MIMAG_qual = factor(MIMAG_qual, levels = c("High", "nHigh", "Medium"))) %>%
+  arrange(MIMAG_qual) %>%
+  # add totals row
+  bind_rows(
+    summarise(.,
+              MIMAG_qual = "Total",
+              MAGs = sum(MAGs),
+              SRGs = sum(SRGs)
+    )
+  )
+
+quality_counts_gt <- quality_counts %>%
+  gt() %>%
+  cols_label(MIMAG_qual = "") 
+quality_counts_gt
+```
+<img src="figures/quality_counts.png" width="600px" />
