@@ -136,8 +136,10 @@ db_dir="/home/pheirldesktop/db-light"
 threads=6
 mag_dir="metawrap_50_10_bins/ALL_Samples"
 out_dir="bakta_out"
+json_out="bakta_out/json_output"
 
 mkdir -p "$out_dir"
+mkdir -p "$json_out"
 
 # Loop through MAGs listed in mag_list
 while read -r mag_file; do
@@ -153,8 +155,28 @@ while read -r mag_file; do
 
     bakta --db "$db_dir" \
           --threads "$threads" \
+          --skip-cds --skip-plot --skip-ori --skip-ncrna \
+          --skip-ncrna-region --skip-crispr --skip-pseudo --skip-gap \
           --output "$out_dir/$mag_name" \
           "$mag_path"
+
+    # Collect JSON files and move to central folder
+    shopt -s nullglob
+    json_files=( "$out_dir/$mag_name"/*.json )
+    shopt -u nullglob
+
+    if (( ${#json_files[@]} == 0 )); then
+        echo "  Warning: no .json files produced for $mag_name" >&2
+    else
+        for jf in "${json_files[@]}"; do
+            base="$(basename "$jf")"
+            target="${json_out}/${base}"
+            echo "  Moving $jf -> $target"
+            mv "$jf" "$target"
+        done
+        # remove the (now-empty) bakta output folder
+        rm -rf "$out_dir/$mag_name"
+    fi
 
 done < "$mag_list"
 ```
