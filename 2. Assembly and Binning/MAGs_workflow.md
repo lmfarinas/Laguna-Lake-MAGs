@@ -612,3 +612,52 @@ quality_counts_gt <- quality_counts %>%
 quality_counts_gt
 ```
 <img src="figures/quality_counts.png" width="200px" />
+
+## Optional: AMR Analysis
+To check for AMR genes in the MAGs, AMRFinderPlus can be used as follows:
+
+```bash
+mag_dir="metawrap_50_10_bins/ALL_Samples"
+out_dir="amrfinder_out"
+threads=6
+
+mkdir -p "$out_dir"
+
+summary_file="${out_dir}/mags_with_amr_hits.txt"
+: > "$summary_file"   # truncate or create
+
+shopt -s nullglob
+for mag_path in "$mag_dir"/*.fasta "$mag_dir"/*.fa "$mag_dir"/*.fna; do
+    mag_file=$(basename "$mag_path")
+    mag_name="${mag_file%.*}"
+
+    echo "Running AMRFinderPlus on $mag_file ..."
+
+    out_tsv="${out_dir}/${mag_name}.amrfinder.tsv"
+
+    amrfinder \
+        -n "$mag_path" \
+        -o "$out_tsv" \
+        --threads "$threads"
+
+    # If output file doesn't exist or is empty -> no hits
+    if [[ ! -s "$out_tsv" ]]; then
+        echo "  --> No hits (no output file or empty)"
+        continue
+    fi
+
+    # Count lines. AMRFinderPlus includes a header line even when there are no hits.
+    lines=$(wc -l < "$out_tsv")
+    if (( lines > 1 )); then
+        # There are real hits (lines minus 1 for header)
+        echo "$mag_name" >> "$summary_file"
+        hits=$((lines - 1))
+        echo "  --> $hits hits found"
+    else
+        echo "  --> No hits"
+    fi
+done
+shopt -u nullglob
+
+echo "Summary saved to: $summary_file"
+```
