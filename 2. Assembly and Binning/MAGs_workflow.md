@@ -614,7 +614,7 @@ quality_counts_gt
 <img src="figures/quality_counts.png" width="200px" />
 
 ## Optional: AMR Analysis
-To check for AMR genes in the MAGs, AMRFinderPlus can be used as follows:
+To check for AMR genes in the MAGs, AMRFinder (v 4.0.23) with the database version 2025-07-16.1.
 
 ```bash
 mag_dir="metawrap_50_10_bins/ALL_Samples"
