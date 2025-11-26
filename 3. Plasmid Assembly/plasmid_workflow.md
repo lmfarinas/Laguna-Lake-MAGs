@@ -33,6 +33,9 @@ amrfinder \
 -n metaplasmidspades_out/contigstry/plasmids95_rep_seq.fasta \
 -o ARGs/plasmid95_amr_results.tsv \
 --threads 6
+
+
+viralverify -f metaplasmidspades_out/contigstry/plasmids95_rep_seq.fasta -o viralVerify_out --hmm Pfam-A.hmm -p
 ```
 
 
