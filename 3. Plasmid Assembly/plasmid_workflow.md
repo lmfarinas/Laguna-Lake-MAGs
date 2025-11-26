@@ -47,3 +47,8 @@ use viralVerify bioconda v 1.1
 wget ftp://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz
 ```
 
+
+bakta web annotation
+https://bakta.computational.bio/job/eyJqb2JJRCI6ImVlZDIwYWNiLTAyMWQtNDlhYi1hODVkLTc0ZDBjZTNkMDUxNCIsInNlY3JldCI6IlhmWURtNGdSMnE0cllzQjBsdGRyOXhrdjFyMUF0Y0ZsIn0=
+
+
