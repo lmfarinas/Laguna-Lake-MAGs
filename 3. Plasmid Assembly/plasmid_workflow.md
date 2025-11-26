@@ -27,6 +27,14 @@ mmseqs easy-cluster all_metaplasmidspades_contigs.fasta plasmids95 tmp \
     --cov-mode 1
 ```
 
+Check ARGs using AMRFinderPlus:
+```bash
+amrfinder \
+-n metaplasmidspades_out/contigstry/plasmids95_rep_seq.fasta \
+-o ARGs/plasmid95_amr_results.tsv \
+--threads 6
+```
+
 
 to do: https://github.com/ablab/plasmidVerify, https://github.com/ablab/viralVerify
 
