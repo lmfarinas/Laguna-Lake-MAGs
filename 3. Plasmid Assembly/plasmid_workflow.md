@@ -30,7 +30,7 @@ mmseqs easy-cluster all_metaplasmidspades_contigs.fasta plasmids95 tmp \
 Check ARGs using AMRFinderPlus:
 ```bash
 amrfinder \
--n metaplasmidspades_out/contigstry/plasmids95_rep_seq.fasta \
+-n metaplasmidspades_out/contigs/plasmids95_rep_seq.fasta \
 -o ARGs/plasmid95_amr_results.tsv \
 --threads 6
 
