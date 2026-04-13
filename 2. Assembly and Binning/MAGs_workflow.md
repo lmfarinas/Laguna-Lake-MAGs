@@ -688,3 +688,32 @@ coverm genome \
   -m mean relative_abundance covered_fraction \
   -o coverage/${sample}_coverm.tsv
 ```
+
+### Coverage of Contigs >= 500bp
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+mkdir -p coverage
+
+for bam in BWA_output/*_500bpContigs_sorted.bam; do
+
+  # extract sample name
+  sample=$(basename "$bam" _500bpContigs_sorted.bam)
+
+  echo "Processing $sample..."
+
+  coverm genome \
+    --genome-fasta-files contigs_500bp/${sample}_Contigs_500bp.fasta \
+    --bam-files "$bam" \
+    --exclude-supplementary \
+    -t 6 \
+    -m mean relative_abundance covered_fraction \
+    -o coverage/${sample}_coverm.tsv
+
+done
+
+echo "All samples processed."
+```
+
+
