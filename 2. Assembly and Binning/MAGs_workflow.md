@@ -676,3 +676,15 @@ coverm genome \
   -m mean relative_abundance covered_fraction \
   -o coverage/${sample}_coverm.tsv
 ```
+
+```bash
+sample="AUGLS01"
+mkdir -p "coverage"
+
+coverm genome \
+  --coupled clean_reads/${sample}_1_cleaned.fastq.gz clean_reads/${sample}_2_cleaned.fastq.gz \
+  --genome-fasta-files drep_out/dereplicated_genomes/*.fasta \
+  -t 6 \
+  -m mean relative_abundance covered_fraction \
+  -o coverage/${sample}_coverm.tsv
+```
