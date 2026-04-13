@@ -323,7 +323,7 @@ The output of drep is in `drep_out/` folder. I only uploaded the pertinent files
 ## Summarize MAGs info
 All the information on the MAGs generated from CheckM (in MetaWrap), dRep, and GTDB-Tk are organized in a single table.
 
-The N50 values reported by CheckM (via MetaWrap) and dRep differed, although I am not sure why. I chose to report the N50 values calculated internally by dRep, since these were the values used for scoring and dereplication. moreover, 
+The N50 values reported by CheckM (via MetaWrap) and dRep differed, although I am not sure why. I chose to report the N50 values calculated internally by dRep, since these were the values used for scoring and dereplication. Moreover, drep's N50 is similar with seqkit, which calculates N50 including the N's of the scaffolds.
 
 #### Script: summarize_mags_info.R (part 4)
 ```r
