@@ -666,54 +666,18 @@ echo "Summary saved to: $summary_file"
 CoverM 0.7.0
 
 ```bash
-sample="AUGLS01"
-mkdir -p "coverage"
-
-coverm genome \
-  --coupled clean_reads/${sample}_1_cleaned.fastq.gz clean_reads/${sample}_2_cleaned.fastq.gz \
-  --genome-fasta-files drep_out/dereplicated_genomes/${sample}.bin.*.fasta \
-  -t 6 \
-  -m mean relative_abundance covered_fraction \
-  -o coverage/${sample}_coverm.tsv
-```
-
-```bash
-sample="AUGLS01"
-mkdir -p "coverage"
-
-coverm genome \
-  --coupled clean_reads/${sample}_1_cleaned.fastq.gz clean_reads/${sample}_2_cleaned.fastq.gz \
-  --genome-fasta-files drep_out/dereplicated_genomes/*.fasta \
-  -t 6 \
-  -m mean relative_abundance covered_fraction \
-  -o coverage/${sample}_coverm.tsv
-```
-
-### Coverage of Contigs >= 500bp
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
 mkdir -p coverage
 
-for bam in BWA_output/*_500bpContigs_sorted.bam; do
-
-  # extract sample name
-  sample=$(basename "$bam" _500bpContigs_sorted.bam)
-
+for sample in AUGLS01 AUGLS05 AUGLS16 SEPLS01 SEPLS05 SEPLS16; do
   echo "Processing $sample..."
 
   coverm genome \
-    --genome-fasta-files contigs_500bp/${sample}_Contigs_500bp.fasta \
-    --bam-files "$bam" \
-    --exclude-supplementary \
+    --coupled clean_reads/${sample}_1_cleaned.fastq.gz clean_reads/${sample}_2_cleaned.fastq.gz \
+    --genome-fasta-files drep_out/dereplicated_genomes/*.fasta \
     -t 6 \
     -m mean relative_abundance covered_fraction \
     -o coverage/${sample}_coverm.tsv
 
 done
-
-echo "All samples processed."
 ```
-
-
+The coverage stats are in `coverage/`
