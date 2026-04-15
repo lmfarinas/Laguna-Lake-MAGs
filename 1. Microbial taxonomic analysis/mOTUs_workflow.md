@@ -39,6 +39,7 @@ library(readr)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(viridis)
 
 #### Import and process data
 # set '#' as indicator of the metadata lines in the motus output
@@ -120,26 +121,18 @@ profile_assigned_long$phylum <- factor(profile_assigned_long$phylum,
 
 ggplot(profile_assigned_long, aes(x = Sample, y = Proportion, fill = phylum)) +
   geom_bar(stat = "identity") +
-  scale_fill_manual(values = c("Actinobacteria" = "#E69F00",
-                               "Proteobacteria" = "#56B4E9",
-                               "Cyanobacteria" = "#009E73",
-                               "Bacteroidetes" = "#F0E442",
-                               "Other Bacteria" = "#0072B2",
-                               "Verrucomicrobia" = "#D55E00",
-                               "Planctomycetes" = "#CC79A7",
-                               "Acidobacteria" = "#8B4513",
-                               "Gemmatimonadetes" = "#800080",
-                               "Chloroflexi" = "#CCFF33",
-                               "Fusobacteria" = "#FF4499")) +
+  scale_fill_viridis_d(option = "viridis") +
   labs(x = "Sample", y = "Relative Abundance (%)", fill = "Phylum") +
   theme_minimal(base_family = "sans", base_size = 12) +
-  theme(legend.position = "right", 
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(color = "black"),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    legend.position = "right", 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
 
 #### Output abundance tables
 # Load necessary packages
