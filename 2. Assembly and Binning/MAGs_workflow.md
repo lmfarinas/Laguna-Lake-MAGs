@@ -403,7 +403,18 @@ mags_info <- mags_stats %>%
   arrange(primary, secondary, desc(score)) %>%
   group_by(primary, secondary) %>%
   ungroup() %>%
-  unite(cluster, primary, secondary, sep = "_", remove = TRUE)
+  unite(cluster, primary, secondary, sep = "_", remove = TRUE) %>%
+# Final modifications for the table
+  rename(sample=sample_name, GTDB_classification=classification) %>%
+  mutate(
+    Month = str_extract(bin_name,"^(AUG|SEP)"),
+    Station = str_extract(bin_name, "(?<=LS)\\d{2}"),
+    Bin = str_extract(bin_name, "(?<=\\.bin\\.)\\d{1,2}"),
+    Bin = str_pad(Bin, width=2, side="left", pad="0"),
+    MAG_name = paste0(substr(Month,1,1), "LS", Station, "B", Bin)
+  ) %>%
+  select(-Month, -Station, -bin_name, -bin_number, -Bin)  %>%
+  relocate(MAG_name, .after = sample)
 ```
 #### Script: summarize_mags_info.R (part 5)
 
