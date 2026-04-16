@@ -485,7 +485,7 @@ ggplot(SRG_info_joined, aes(x = completeness, y = contamination, color = phylum)
   ) +
   scale_x_continuous(limits = c(50, 100)) +
   # Colors for fills and points
-  scale_color_viridis_d(option = "turbo") +
+  scale_color_viridis_d(option = "viridis") +
   scale_fill_manual(
     values = c("Medium-quality SRGs" = "orange3", "High-quality SRGs" = "blue3")
   ) +
