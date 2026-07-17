@@ -7,4 +7,5 @@ see: https://github.com/lmfarinas/laguna-lake-ARG-Analysis/blob/main/ARG-Quantif
 ## 1. Microbial taxonomic analysis
 see:  [mOTUs_workflow.md](1.%20Microbial%20taxonomic%20analysis/mOTUs_workflow.md)
 
-
+## 2. Assembly and Binning
+see: [MAGs_workflow.md](https://github.com/lmfarinas/Laguna-Lake-MAGs/blob/main/2.%20Assembly%20and%20Binning/MAGs_workflow.md)
