@@ -672,7 +672,7 @@ shopt -u nullglob
 
 echo "Summary saved to: $summary_file"
 ```
-
+The output is placed in `amrfinder_out/`
 ## Coverage
 CoverM 0.7.0
 
