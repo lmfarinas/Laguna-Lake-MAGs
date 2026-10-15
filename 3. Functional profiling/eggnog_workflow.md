@@ -1,6 +1,8 @@
 # KEGG Profiling
 
 ## Set up of eggnog-mapper3
+
+emapper-3.0.0-beta6 / eggNOG DB version: 7.0.0 / Diamond version found: diamond version 2.2.8 / MMseqs2 version found: 18.8cc5c
 ```bash
 # Set up a conda environment
 mamba create -n eggnog3_env \
@@ -34,4 +36,19 @@ mkdir -p \
 download_eggnog_data.py \
     -y \
     --data_dir ~/databases/eggnog7
+```
+Create a symlink to point from the default to the actual directory of the database
+```bash
+DB_DEFAULT="$CONDA_PREFIX/lib/python3.11/site-packages/data"
+DB_ACTUAL="/scratch2/lance.farinas/databases/eggnog7"
+
+# Remove the empty default directory
+rmdir "$DB_DEFAULT"
+
+# Link it to your downloaded eggNOG v7 database directory
+ln -s "$DB_ACTUAL" "$DB_DEFAULT"
+
+# Verify the symlink and database path
+ls -ld "$DB_DEFAULT"
+readlink -f "$DB_DEFAULT/eggnog.db"
 ```
